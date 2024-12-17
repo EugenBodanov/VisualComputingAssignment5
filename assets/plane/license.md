@@ -1,0 +1,1 @@
+This work "Cessna", is adapted from "Cessna172" (https://skfb.ly/oYXVT) by KOG_THORNS licensed under Creative Commons Attribution (CC BY 4.0, http://creativecommons.org/licenses/by/4.0/). "Cessna" is licensed under CC BY 4.0 by Jacob Hoeck and Stefan Spiss.

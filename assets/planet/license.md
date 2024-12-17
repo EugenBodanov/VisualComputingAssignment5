@@ -1,0 +1,1 @@
+This work "earth-cartoon", is adapted from "Earth cartoon" (https://skfb.ly/oYy8F) by onirix licensed under Creative Commons Attribution (CC BY 4.0, http://creativecommons.org/licenses/by/4.0/). "earth-cartoon" is licensed under CC BY 4.0 by Jacob Hoeck and Stefan Spiss.

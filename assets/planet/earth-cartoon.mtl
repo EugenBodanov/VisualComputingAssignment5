@@ -1,0 +1,98 @@
+# Blender 4.3.0 MTL File: 'earth-cartoon.blend'
+# www.blender.org
+
+newmtl Boats
+Ns 250.000000
+Ka 0.900000 0.900000 0.900000
+Kd 0.900000 0.153000 0.339750
+Ks 0.300000 0.300000 0.300000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Ns textures/Boats_Glossy.png
+map_Kd textures/Boats_Albedo.png
+map_Ks textures/Boats_Specular_Color.png
+map_Ke textures/Boats_Emission.png
+map_Ka textures/Boats_AO.png
+map_Bump textures/Boats_Normals.png
+
+newmtl Continents
+Ns 50.000000
+Ka 0.800000 0.800000 0.800000
+Kd 0.009776 0.602165 0.064080
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Ns textures/Continents_Glossy.png
+map_Kd textures/Continents_Albedo.png
+map_Ks textures/Continents_Specular_Color.png
+map_Ke textures/Continents_Emission.png
+map_Ka textures/Continents_AO.png
+map_Bump textures/Continents_Normals.png
+
+newmtl Houses
+Ns 90.000000
+Ka 0.900000 0.900000 0.900000
+Kd 0.346790 0.350480 0.467201
+Ks 0.300000 0.300000 0.300000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Ns textures/Houses_Glossy.png
+map_Kd textures/Houses_Albedo.png
+map_Ks textures/Houses_Specular_Color.png
+map_Ke textures/Houses_Emit.png
+map_Ka textures/Houses_AO.png
+map_Bump textures/Houses_Normal.png
+
+newmtl Ocean
+Ns 500.000000
+Ka 0.950000 0.950000 0.950000
+Kd 0.071089 0.355659 0.800000
+Ks 0.700000 0.700000 0.700000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Ns textures/Ocean_Glossy.png
+map_Kd textures/Ocean_Albedo.png
+map_Ks textures/Ocean_Specular_Color.png
+map_Ke textures/Ocean_Emission.png
+map_Ka textures/Ocean_AO.png
+map_Bump textures/Ocean_Normals.png
+
+newmtl Trees
+Ns 80.000000
+Ka 0.800000 0.800000 0.800000
+Kd 0.019357 0.196111 0.036334
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Ns textures/Trees_Glossy.png
+map_Kd textures/Trees_Albedo.png
+map_Ks textures/Trees_Specular_Color.png
+map_Ke textures/Trees_Emission.png
+map_Ka textures/Trees_AO.png
+map_Bump textures/Trees_Normals.png
+
+newmtl Vistas
+Ns 50.000000
+Ka 0.800000 0.800000 0.800000
+Kd 1.000000 0.700048 0.355731
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Ns textures/Vistas_Glossy.png
+map_Kd textures/Vistas_Albedo.png
+map_Ks textures/Vistas_Specular_Color.png
+map_Ke textures/Vistas_Emission.png
+map_Ka textures/Vistas_AO.png
+map_Bump textures/Vistas_Normals.png
