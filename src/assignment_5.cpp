@@ -310,9 +310,8 @@ void renderColor(ShaderProgram& shader, bool renderNormal) {
         shaderUniform(shader, "isFlag", false);
     }*/
 
-   /*glActiveTexture(GL_TEXTURE4);
+   glActiveTexture(GL_TEXTURE0);
    glBindTexture(GL_TEXTURE_2D, sScene.plane.noEmissionTexture.id);
-   shaderUniform(sScene.shaderColor, "map_emission", 4);*/
 
    if (!renderNormal) {
         shaderUniform(shader, "uCameraPos", cameraPosition(sScene.camera));

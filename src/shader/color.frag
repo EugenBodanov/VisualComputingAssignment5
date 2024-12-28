@@ -29,7 +29,7 @@ in vec2 TexCoords;
 out vec4 FragColor;
 
 uniform Material uMaterial;
-//uniform sampler2D map_emission;
+uniform sampler2D theTexture;
 
 vec3 directionalLight(vec3 normal, vec3 lightPos) {
     vec3 lightDir = normalize(lightPos - tFragPos);
@@ -56,9 +56,9 @@ void main(void)
     // Compute the directional/global light contribution
     vec3 lightResult = directionalLight(normal, uLight.lightPos);
 
-    //vec3 emissionFromTexture = texture(map_emission, TexCoords).rgb;
+    vec4 emissionFromTexture = texture(theTexture, TexCoords);
 
-    vec3 finalColor = lightResult + uMaterial.emission; //+ emissionFromTexture;
+    vec3 finalColor = lightResult + uMaterial.emission;
     
-    FragColor = vec4(finalColor, 1.0);
+    FragColor = vec4(finalColor, 1.0) * emissionFromTexture;
 }
