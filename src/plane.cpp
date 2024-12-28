@@ -1,6 +1,7 @@
 #include "plane.h"
 
 #include <stdexcept>
+#include <iostream>
 
 Plane planeLoad(const std::string& planeFilePath, const std::string& flagFilePath)
 {
@@ -15,11 +16,21 @@ Plane planeLoad(const std::string& planeFilePath, const std::string& flagFilePat
     plane.partModel.resize(models.size());
     plane.partTransformations.resize(Plane::ePart::PART_COUNT, Matrix4D::identity());
     plane.position = plane.basePosition;
+    /*try {
+        plane.noEmissionTexture = textureLoad("assets/plane/textures/Cessna_Body_Albedo.png");
+    } catch (const std::runtime_error& e) {
+        std::cerr << "Error loading emission texture: " << e.what() << std::endl;
+        plane.noEmissionTexture = textureCreateSingleColor(1, 1, {0.0f, 0.0f, 0.0f});
+    }*/
+
     plane.noEmissionTexture = textureCreateSingleColor(1, 1, {0.0f, 0.0f, 0.0f});
 
     for(const auto& obj : models)
     {
-        if(obj.name == "Hull")plane.partModel[Plane::HULL] = obj;
+        if (obj.name == "Hull") {
+        plane.partModel[Plane::HULL] = obj;
+        //plane.partModel[Plane::HULL].material[0].map_emission = plane.noEmissionTexture;
+        }
         else if(obj.name == "Glass") plane.partModel[Plane::WINDOWS] = obj;
         else if(obj.name == "Propeller") plane.partModel[Plane::PROPELLER] = obj;
         else if(obj.name == "StrobeRudder")

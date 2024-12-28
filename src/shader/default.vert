@@ -10,11 +10,13 @@ uniform mat4 uProj;
 
 out vec3 tNormal;
 out vec3 tFragPos;
+//out vec2 TexCoords; 
 
 void main(void)
 {
     gl_Position = uProj * uView * uModel * vec4(aPosition, 1.0);
     tFragPos = vec3(uModel * vec4(aPosition, 1.0));
     // tNormal = mat3(transpose(inverse(uModel))) * aNormal;
+    //TexCoords = aUV;
     tNormal = normalize(mat3(uModel) * aNormal);
 }
