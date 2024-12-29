@@ -1,6 +1,7 @@
 #include "planet.h"
 
 #include <stdexcept>
+#include <iostream>
 
 Planet planetLoad(const std::string &planetFilePath)
 {
@@ -17,11 +18,59 @@ Planet planetLoad(const std::string &planetFilePath)
     /* go over all models and find all materials with emission -> save in emission color map */
     for (size_t part_id = 0u; part_id < planet.partModel.size(); part_id++)
     {
+        //std::cout << "Part " << part_id << ": " << planet.partModel[part_id].name << std::endl;
         std::map<int, Vector3D> emissionColors;
         std::map<int, Texture> emissionTextures;
+        auto &part = planet.partModel[part_id];
         for (auto mat_id=0u; mat_id < planet.partModel[part_id].material.size(); mat_id++)
         {
             auto mat = planet.partModel[part_id].material[mat_id];
+
+            // Texture setUp
+            if (part.name == "Boats"){
+                mat.map_diffuse = textureLoad("assets/planet/textures/Boats_Albedo.png");
+                mat.map_ambient = textureLoad("assets/planet/textures/Boats_AO.png");
+                mat.map_emission = textureLoad("assets/planet/textures/Boats_Emission.png");
+                mat.map_shininess = textureLoad("assets/planet/textures/Boats_Glossy.png");
+                mat.map_normal = textureLoad("assets/planet/textures/Boats_Normals.png");
+                mat.map_specular = textureLoad("assets/planet/textures/Boats_Specular_Color.png");
+            } else if (part.name == "Continent"){
+                mat.map_diffuse = textureLoad("assets/planet/textures/Continents_Albedo.png");
+                mat.map_ambient = textureLoad("assets/planet/textures/Continents_AO.png");
+                mat.map_emission = textureLoad("assets/planet/textures/Continents_Emission.png");
+                mat.map_shininess = textureLoad("assets/planet/textures/Continents_Glossy.png");
+                mat.map_normal = textureLoad("assets/planet/textures/Continents_Normals.png");
+                mat.map_specular = textureLoad("assets/planet/textures/Continents_Specular_Color.png");
+            } else if (part.name == "Houses"){
+                mat.map_diffuse = textureLoad("assets/planet/textures/Houses_Albedo.png");
+                mat.map_ambient = textureLoad("assets/planet/textures/Houses_AO.png");
+                mat.map_emission = textureLoad("assets/planet/textures/Houses_Emit.png");
+                mat.map_shininess = textureLoad("assets/planet/textures/Houses_Glossy.png");
+                mat.map_normal = textureLoad("assets/planet/textures/Houses_Normal.png");
+                mat.map_specular = textureLoad("assets/planet/textures/Houses_Specular_Color.png");
+            } else if (part.name == "Ocean"){
+                mat.map_diffuse = textureLoad("assets/planet/textures/Ocean_Albedo.png");
+                mat.map_ambient = textureLoad("assets/planet/textures/Ocean_AO.png");
+                mat.map_emission = textureLoad("assets/planet/textures/Ocean_Emission.png");
+                mat.map_shininess = textureLoad("assets/planet/textures/Ocean_Glossy.png");
+                mat.map_normal = textureLoad("assets/planet/textures/Ocean_Normals.png");
+                mat.map_specular = textureLoad("assets/planet/textures/Ocean_Specular_Color.png");
+            } else if (part.name == "Trees"){
+                mat.map_diffuse = textureLoad("assets/planet/textures/Trees_Albedo.png");
+                mat.map_ambient = textureLoad("assets/planet/textures/Trees_AO.png");
+                mat.map_emission = textureLoad("assets/planet/textures/Trees_Emission.png");
+                mat.map_shininess = textureLoad("assets/planet/textures/Trees_Glossy.png");
+                mat.map_normal = textureLoad("assets/planet/textures/Trees_Normals.png");
+                mat.map_specular = textureLoad("assets/planet/textures/Trees_Specular_Color.png");
+            } else if (part.name == "Vistas"){
+                mat.map_diffuse = textureLoad("assets/planet/textures/Vistas_Albedo.png");
+                mat.map_ambient = textureLoad("assets/planet/textures/Vistas_AO.png");
+                mat.map_emission = textureLoad("assets/planet/textures/Vistas_Emission.png");
+                mat.map_shininess = textureLoad("assets/planet/textures/Vistas_Glossy.png");
+                mat.map_normal = textureLoad("assets/planet/textures/Vistas_Normals.png");
+                mat.map_specular = textureLoad("assets/planet/textures/Vistas_Specular_Color.png");
+            }
+            
             if (mat.emission.x > 0.0f || mat.emission.y > 0.0f || mat.emission.z > 0.0f)
             {
                 emissionColors[mat_id] = planet.partModel[part_id].material[mat_id].emission;

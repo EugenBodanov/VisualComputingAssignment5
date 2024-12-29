@@ -124,7 +124,9 @@ void main(void)
         tex_shininess
     );
 
-    vec4 finalColor = vec4(blinnResult, 1.0) + tex_emission;
+    float alpha = texture(map_diffuse, TexCoords).a;
+
+    vec4 finalColor = vec4(blinnResult, alpha) + tex_emission;
 
 /*
     vec4 tex_specular2 = vec4(0.0);
