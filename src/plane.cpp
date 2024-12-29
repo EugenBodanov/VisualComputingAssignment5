@@ -16,16 +16,48 @@ Plane planeLoad(const std::string& planeFilePath, const std::string& flagFilePat
     plane.partModel.resize(models.size());
     plane.partTransformations.resize(Plane::ePart::PART_COUNT, Matrix4D::identity());
     plane.position = plane.basePosition;
+    /*
     plane.noEmissionTexture = textureLoad("assets/plane/textures/Cessna_Body_Albedo.png");
+    plane.body_ao = textureLoad("assets/plane/textures/Cessna_Body_AO.png");
+    plane.body_emission = textureLoad("assets/plane/textures/Cessna_Body_Emission.png");
+    plane.body_glossy = textureLoad("assets/plane/textures/Cessna_Body_Glossy.png");
+    plane.body_normals = textureLoad("assets/plane/textures/Cessna_Body_Normals.png");
+    plane.body_specular_color = textureLoad("assets/plane/textures/Cessna_Body_Specular_Color.png");
+    */
 
-    // plane.noEmissionTexture = textureCreateSingleColor(1, 1, {0.0f, 0.0f, 0.0f});
+    plane.noEmissionTexture = textureCreateSingleColor(1, 1, {0.0f, 0.0f, 0.0f});
 
     for(const auto& obj : models)
     {
         if (obj.name == "Hull") {
         plane.partModel[Plane::HULL] = obj;
+            if (!plane.partModel[Plane::HULL].material.empty()) {
+                for (auto& material : plane.partModel[Plane::HULL].material) {
+                    material.map_diffuse = textureLoad("assets/plane/textures/Cessna_Body_Albedo.png");
+                    material.map_normal = textureLoad("assets/plane/textures/Cessna_Body_Normals.png");
+                    material.map_specular = textureLoad("assets/plane/textures/Cessna_Body_Specular_Color.png");
+                    material.map_ambient = textureLoad("assets/plane/textures/Cessna_Body_AO.png");
+                    material.map_emission = textureLoad("assets/plane/textures/Cessna_Body_Emission.png");
+                    material.map_shininess = textureLoad("assets/plane/textures/Cessna_Body_Glossy.png");
+                }
+            } else {
+                std::cerr << "[Error] No materials found in HULL part!" << std::endl;
+            }
         }
-        else if(obj.name == "Glass") plane.partModel[Plane::WINDOWS] = obj;
+        else if(obj.name == "Glass") {
+            plane.partModel[Plane::WINDOWS] = obj;
+            if (!plane.partModel[Plane::WINDOWS].material.empty()) {
+                for (auto& material : plane.partModel[Plane::WINDOWS].material) {
+                    material.map_diffuse = textureLoad("assets/plane/textures/Cessna_Glass_Albedo.png");
+                    material.map_normal = textureLoad("assets/plane/textures/Cessna_Glass_Normals.png");
+                    material.map_ambient = textureLoad("assets/plane/textures/Cessna_Glass_AO.png");
+                    material.map_emission = textureLoad("assets/plane/textures/Cessna_Glass_Emission.png");
+                    material.map_shininess = textureLoad("assets/plane/textures/Cessna_Glass_Glossy.png");
+                }
+            } else {
+                std::cerr << "[Error] No materials found in Glass part!" << std::endl;
+            }
+        }
         else if(obj.name == "Propeller") plane.partModel[Plane::PROPELLER] = obj;
         else if(obj.name == "StrobeRudder")
         {
@@ -63,7 +95,20 @@ Plane planeLoad(const std::string& planeFilePath, const std::string& flagFilePat
             plane.emissionColors[Plane::LIGHT_RUDDER] = obj.material[0].emission;
             plane.emissionTextures[Plane::LIGHT_RUDDER] = obj.material[0].map_emission;
         }
-        else if(obj.name == "FlagConnector") plane.partModel[Plane::FLAG_CONNECTOR] = obj;
+        else if(obj.name == "FlagConnector") {
+            plane.partModel[Plane::FLAG_CONNECTOR] = obj;
+            if (!plane.partModel[Plane::FLAG_CONNECTOR].material.empty()) {
+                for (auto& material : plane.partModel[Plane::FLAG_CONNECTOR].material) {
+                    material.map_diffuse = textureLoad("assets/plane/textures/Cessna_Rope_Albedo.png");
+                    material.map_normal = textureLoad("assets/plane/textures/Cessna_Rope_Normals.png");
+                    material.map_ambient = textureLoad("assets/plane/textures/Cessna_Rope_AO.png");
+                    material.map_emission = textureLoad("assets/plane/textures/Cessna_Rope_Emission.png");
+                    material.map_shininess = textureLoad("assets/plane/textures/Cessna_Rope_Glossy.png");
+                }
+            } else {
+                std::cerr << "[Error] No materials found in FlagConnector part!" << std::endl;
+            }
+        }
         else throw std::runtime_error("[Plane] unkown part name: " + obj.name);
     }
 
@@ -83,6 +128,22 @@ void planeDelete(Plane &plane)
     }
 
     textureDelete(plane.noEmissionTexture);
+    for (auto& model : plane.partModel) {
+        for (auto& material : model.material) {
+            textureDelete(material.map_diffuse);
+            textureDelete(material.map_normal);
+            textureDelete(material.map_specular);
+            textureDelete(material.map_ambient);
+            textureDelete(material.map_emission);
+            textureDelete(material.map_shininess);
+        }
+    }
+    /*
+    textureDelete(plane.body_ao);
+    textureDelete(plane.body_emission);
+    textureDelete(plane.body_glossy);
+    textureDelete(plane.body_normals);
+    textureDelete(plane.body_specular_color);*/
     plane.partModel.clear();
     plane.partTransformations.clear();
 }

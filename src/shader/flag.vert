@@ -22,6 +22,7 @@ uniform float accumTime; // is updated within the main program!
 out vec3 tNormal;
 out vec3 tFragPos;
 out vec2 TexCoords;
+out mat4 M;
 
 
 float getDisplacement(vec2 pos) {
@@ -69,5 +70,6 @@ void main(void)
     TexCoords = aUV;
 
     tNormal = normalize(mat3(transpose(inverse(uModel))) * normal);
+    M = uModel;
 }
 

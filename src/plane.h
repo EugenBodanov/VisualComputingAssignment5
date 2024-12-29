@@ -47,6 +47,22 @@ struct Plane
     std::map<int, Vector3D> emissionColors;
     std::map<int, Texture> emissionTextures;
     Texture noEmissionTexture;
+    /*
+    Texture body_ao;
+    Texture body_emission;
+    Texture body_glossy;
+    Texture body_normals;
+    Texture body_specular_color;
+    Texture glass_emission;
+    Texture glass_ao;
+    Texture glass_albedo;
+    Texture glass_glossy;
+    Texture glass_normals;
+    Texture rope_albedo;
+    Texture rope_ao;
+    Texture rope_emission;
+    Texture rope_glossy;
+    Texture rope_normals;*/
 
     Matrix4D transformation = Matrix4D::identity();
     Matrix4D rotation = Matrix4D::identity();

@@ -10,7 +10,8 @@ uniform mat4 uProj;
 
 out vec3 tNormal;
 out vec3 tFragPos;
-out vec2 TexCoords; 
+out vec2 TexCoords;
+out mat4 M;
 
 void main(void)
 {
@@ -19,4 +20,5 @@ void main(void)
     // tNormal = mat3(transpose(inverse(uModel))) * aNormal;
     TexCoords = aUV;
     tNormal = normalize(mat3(uModel) * aNormal);
+    M = uModel;
 }

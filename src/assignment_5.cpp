@@ -243,12 +243,12 @@ void sceneInit(float width, float height)
     /* Create a light source for day and night */
     sScene.isDay = true;
 
-    sScene.dayLight.lightColor = Vector3D(182.0/255,126.0/255,91.0/255);
-    sScene.dayLight.lightPos = Vector3D(100.0f, 300.0f, 0.0f);
+    sScene.dayLight.lightColor = Vector3D(1.0f, 0.9f, 0.8f);
+    sScene.dayLight.lightPos = Vector3D(0.0f, 500.0f, 0.0f);
     sScene.dayLight.globalAmbientLightColor = Vector3D(182.0/255, 0.5f, 0.6f);
-    sScene.dayLight.ka = 0.3f;
-    sScene.dayLight.kd = 0.7f;
-    sScene.dayLight.ks = 0.4f;
+    sScene.dayLight.ka = 0.5f;
+    sScene.dayLight.kd = 0.9f;
+    sScene.dayLight.ks = 0.6f;
 
     sScene.nightLight.lightColor = Vector3D(0.9f, 0.5f, 0.2f);
     sScene.nightLight.lightPos = Vector3D(100.0f, 100.0f, 0.0f); // The position of the light source is lower at night -> less direct light angle hitting the planet's surface
@@ -310,9 +310,6 @@ void renderColor(ShaderProgram& shader, bool renderNormal) {
         shaderUniform(shader, "isFlag", false);
     }*/
 
-   glActiveTexture(GL_TEXTURE0);
-   glBindTexture(GL_TEXTURE_2D, sScene.plane.noEmissionTexture.id);
-
    if (!renderNormal) {
         shaderUniform(shader, "uCameraPos", cameraPosition(sScene.camera));
 
@@ -346,6 +343,35 @@ void renderColor(ShaderProgram& shader, bool renderNormal) {
                 shaderUniform(shader, "uMaterial.specular", material.specular);
                 shaderUniform(shader, "uMaterial.shininess", material.shininess);
                 shaderUniform(shader, "uMaterial.emission", material.emission);
+                /* Texture binding */
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, material.map_diffuse.id);
+                shaderUniform(shader, "map_diffuse", 0);
+
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, material.map_normal.id);
+                shaderUniform(shader, "map_normal", 1);
+
+                glActiveTexture(GL_TEXTURE2);
+                glBindTexture(GL_TEXTURE_2D, material.map_ambient.id);
+                shaderUniform(shader, "map_ambient", 2);
+
+                glActiveTexture(GL_TEXTURE3);
+                glBindTexture(GL_TEXTURE_2D, material.map_emission.id);
+                shaderUniform(shader, "map_emission", 3);
+
+                glActiveTexture(GL_TEXTURE4);
+                glBindTexture(GL_TEXTURE_2D, material.map_shininess.id);
+                shaderUniform(shader, "map_shininess", 4);
+
+                bool hasSpecular = (i == 0);
+                shaderUniform(shader, "hasSpecular", hasSpecular);
+
+                if (hasSpecular) {
+                    glActiveTexture(GL_TEXTURE5);
+                    glBindTexture(GL_TEXTURE_2D, material.map_specular.id);
+                    shaderUniform(shader, "map_specular", 5);
+                }
             }
             glDrawElements(GL_TRIANGLES, material.indexCount, GL_UNSIGNED_INT, (const void*) (material.indexOffset*sizeof(unsigned int)) );
         }
