@@ -18,11 +18,13 @@ uniform float frequencies[3]; // == omega
 uniform vec2 directions[3];
 uniform float zPosMin;
 uniform float accumTime; // is updated within the main program!
+uniform sampler2D map_displacement;
+uniform float displacementScale;
 
 out vec3 tNormal;
 out vec3 tFragPos;
 out vec2 TexCoords;
-out mat4 M;
+out vec3 normal;
 
 
 float getDisplacement(vec2 pos) {
@@ -31,6 +33,11 @@ float getDisplacement(vec2 pos) {
         displacement += amplitudes[i] * sin(dot(directions[i], pos) * frequencies[i] + accumTime * phases[i]);
     }
     return displacement * (aPosition.z / zPosMin);
+}
+
+float getDisplacementFromMap(vec2 uv) {
+    float displacement = texture(map_displacement, uv).r;
+    return displacement * displacementScale;
 }
 
 // -------- Gives the partial derivative of the H(p, t) function w.r.t. y if (deriveY == true), otherwise w.r.t. z -------- //
@@ -52,9 +59,12 @@ float getPartialDerivative(bool deriveY, vec2 pos, float time) {
 
 void main(void)
 {
+    float displacement = getDisplacementFromMap(aUV);
+
     // Calculate the partial derivatives of H(p, t) with respect to y and z
-    vec2 partialDeriv;
-    vec3 modifiedPos = aPosition;
+    // vec2 partialDeriv;
+    vec3 modifiedPos = aPosition + aNormal * displacement;
+    //vec3 modifiedPos = aPosition;
 
     modifiedPos.x += getDisplacement(aPosition.yz); // Displacement on x-axis
 
@@ -62,7 +72,7 @@ void main(void)
     float partialDerivZ = getPartialDerivative(false, aPosition.yz, accumTime);
 
     // New normals which consider the displacement of the flag
-    vec3 normal = normalize(cross(vec3(partialDerivY, 1.0f, 0.0f), vec3(partialDerivZ, 0.0f, 1.0f)));
+    normal = normalize(cross(vec3(partialDerivY, 1.0f, 0.0f), vec3(partialDerivZ, 0.0f, 1.0f)));
 
 
     gl_Position = uProj * uView * uModel * vec4(modifiedPos, 1.0);
@@ -70,6 +80,5 @@ void main(void)
     TexCoords = aUV;
 
     tNormal = normalize(mat3(transpose(inverse(uModel))) * normal);
-    M = uModel;
 }
 

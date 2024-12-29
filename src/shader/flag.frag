@@ -25,6 +25,7 @@ uniform vec3 uCameraPos; // camera position needed for specular computations
 in vec3 tNormal;
 in vec3 tFragPos;
 in vec2 TexCoords;
+in vec3 normal;
 
 out vec4 FragColor;
 
@@ -82,7 +83,7 @@ vec3 blinnPhongIllumination(
 
     float specAngle = max(dot(normal, halfwayDir), 0.0);
     float specFactor = pow(specAngle, shininess);
-    vec3 specularComponent = hasSpecular ? uLight.ks * specularMaterial.rgb * uLight.lightColor * specFactor : vec3(0.0);
+    vec3 specularComponent = uLight.ks * specularMaterial.rgb * uLight.lightColor * specFactor;
 
     return ambientComponent + diffuseComponent + specularComponent;
 }
@@ -90,13 +91,7 @@ vec3 blinnPhongIllumination(
 
 void main(void)
 {
-    /*
-    vec3 normal = normalize(tNormal);
-
-    // Compute the directional/global light contribution
-    vec3 lightResult = directionalLight(normal, uLight.lightPos);
-    vec3 finalColor_previous = lightResult + uMaterial.emission;*/
-    Light dummy = uLight; // compiler get rid off unused in main uniforms
+    Light dummy = uLight; // compiler get rid of uniforms, which are unused in main 
     Material dummy2 = uMaterial;
 
     vec3 tex_diffuse = texture(map_diffuse, TexCoords).rgb;
@@ -104,17 +99,22 @@ void main(void)
     vec4 tex_emission = texture(map_emission, TexCoords);
     float tex_shininess = texture(map_shininess, TexCoords).r * 1000.0;
     vec3 tex_normals = texture(map_normal, TexCoords).rgb; // x, y, z
-    vec3 tex_specular = vec3(0.0);
-    if (hasSpecular) {
-        tex_specular = texture(map_specular, TexCoords).rgb;
-    }
+    vec3 tex_specular = texture(map_specular, TexCoords).rgb;
 
     vec3 ambientMaterial = tex_diffuse * tex_ambient;
     vec3 n_objectSpace  = tex_normals * 2.0 - 1.0;
     vec3 n_world = normalize( mat3(transpose(inverse(mat3(uModel)))) * n_objectSpace );
 
+    float s = 0.25;
+    vec3 n_s = normalize(s * n_world + (1.0 - s) * normal);
+
+    float d = dot(tNormal, normalize(uCameraPos - tFragPos));
+    if (d < 0.0) {
+        n_s = -n_s;
+    }
+
     vec3 blinnResult = blinnPhongIllumination(
-        n_world,
+        n_s,
         tFragPos,
         uCameraPos,
         uLight.lightPos,
@@ -133,13 +133,4 @@ void main(void)
     }*/
 
     FragColor = finalColor;
-
-    //FragColor = vec4(finalColor, 1.0) ;
-    //FragColor = tex_ambient;
-    //FragColor = tex_vec4(finalColor, 1.0);
-    //FragColor = tex_emission;
-    //FragColor = tex_shininess;
-    //FragColor = tex_normals;
-    //FragColor = tex_specular;
-    //FragColor = ambientMaterial;
 }

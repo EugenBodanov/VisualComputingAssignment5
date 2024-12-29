@@ -260,7 +260,7 @@ void sceneInit(float width, float height)
     /* load shader from file */
     sScene.shaderColor = shaderLoad("shader/default.vert", "shader/color.frag");
     sScene.shaderNormal = shaderLoad("shader/default.vert", "shader/normal.frag");
-    sScene.shaderFlagColor = shaderLoad("shader/flag.vert", "shader/color.frag");
+    sScene.shaderFlagColor = shaderLoad("shader/flag.vert", "shader/flag.frag");
     sScene.shaderFlagNormal = shaderLoad("shader/flag.vert", "shader/normal.frag");
 
     sScene.renderMode = eRenderMode::COLOR;
@@ -443,6 +443,11 @@ void renderFlag(ShaderProgram& shader, bool renderNormal) {
     shaderUniform(shader, "zPosMin", sScene.plane.flag.minPosZ);
     shaderUniform(shader, "accumTime", sScene.plane.flagSim.accumTime);
 
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_2D, sScene.plane.flag.flag_displacement.id);
+    shaderUniform(shader, "map_displacement", 6);
+    shaderUniform(shader, "displacementScale", 0.1f);
+
 
     for (const auto& material : sScene.plane.flag.model.material) {
         if (!renderNormal) {
@@ -450,6 +455,30 @@ void renderFlag(ShaderProgram& shader, bool renderNormal) {
             shaderUniform(shader, "uMaterial.diffuse", material.diffuse);
             shaderUniform(shader, "uMaterial.specular", material.specular);
             shaderUniform(shader, "uMaterial.shininess", material.shininess);
+            /* Texture binding */
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, material.map_diffuse.id);
+            shaderUniform(shader, "map_diffuse", 0);
+
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, material.map_normal.id);
+            shaderUniform(shader, "map_normal", 1);
+
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, material.map_ambient.id);
+            shaderUniform(shader, "map_ambient", 2);
+
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, material.map_emission.id);
+            shaderUniform(shader, "map_emission", 3);
+
+            glActiveTexture(GL_TEXTURE4);
+            glBindTexture(GL_TEXTURE_2D, material.map_shininess.id);
+            shaderUniform(shader, "map_shininess", 4);
+
+            glActiveTexture(GL_TEXTURE5);
+            glBindTexture(GL_TEXTURE_2D, material.map_specular.id);
+            shaderUniform(shader, "map_specular", 5);
         } else {
             shaderUniform(shader, "isFlag", true);
         }

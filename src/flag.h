@@ -30,6 +30,7 @@ struct FlagSim
 
 struct Flag {
     Model model;
+    Texture flag_displacement;
 
     float minPosZ;
 };
