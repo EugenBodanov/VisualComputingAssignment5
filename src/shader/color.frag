@@ -25,6 +25,7 @@ uniform vec3 uCameraPos; // camera position needed for specular computations
 in vec3 tNormal;
 in vec3 tFragPos;
 in vec2 TexCoords;
+in vec3 ReflectDir;
 
 out vec4 FragColor;
 
@@ -37,6 +38,7 @@ uniform sampler2D map_normal;
 uniform sampler2D map_specular;
 uniform bool hasSpecular;
 uniform mat4 uModel;
+uniform samplerCube uCubeMap;
 
 /*
 vec3 directionalLight(vec3 normal, vec3 lightPos) {
@@ -65,7 +67,8 @@ vec3 blinnPhongIllumination(
     vec3 ambientMaterial, 
     vec3 diffuseMaterial, 
     vec3 specularMaterial,
-    float shininess
+    float shininess,
+    vec3 envColor
 ) {
     vec3 lightDir = normalize(lightPos - fragPos);
 
@@ -80,22 +83,20 @@ vec3 blinnPhongIllumination(
     vec3 diffuseComponent =
         uLight.kd * diffuseMaterial * uLight.lightColor * diff;
 
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+    vec3 reflection = envColor * specularMaterial;
+
     float specAngle = max(dot(normal, halfwayDir), 0.0);
     float specFactor = pow(specAngle, shininess);
-    vec3 specularComponent = hasSpecular ? uLight.ks * specularMaterial.rgb * uLight.lightColor * specFactor : vec3(0.0);
+    vec3 specularComponent = hasSpecular ? uLight.ks * spec * specularMaterial.rgb * uLight.lightColor * specFactor : vec3(0.0);
 
-    return ambientComponent + diffuseComponent + specularComponent;
+    return ambientComponent + diffuseComponent + specularComponent + reflection;
 }
 
 
 void main(void)
 {
-    /*
-    vec3 normal = normalize(tNormal);
-
-    // Compute the directional/global light contribution
-    vec3 lightResult = directionalLight(normal, uLight.lightPos);
-    vec3 finalColor_previous = lightResult + uMaterial.emission;*/
     Light dummy = uLight; // compiler get rid off unused in main uniforms
     Material dummy2 = uMaterial;
 
@@ -109,6 +110,8 @@ void main(void)
         tex_specular = texture(map_specular, TexCoords).rgb;
     }
 
+    vec3 envColor = texture(uCubeMap, ReflectDir).rgb;
+
     vec3 ambientMaterial = tex_diffuse * tex_ambient;
     vec3 n_objectSpace  = tex_normals * 2.0 - 1.0;
     vec3 n_world = normalize( mat3(transpose(inverse(mat3(uModel)))) * n_objectSpace );
@@ -121,28 +124,13 @@ void main(void)
         ambientMaterial,
         tex_diffuse,
         tex_specular,
-        tex_shininess
+        tex_shininess,
+        envColor
     );
 
     float alpha = texture(map_diffuse, TexCoords).a;
 
     vec4 finalColor = vec4(blinnResult, alpha) + tex_emission;
 
-
-/*
-    vec4 tex_specular2 = vec4(0.0);
-    if (hasSpecular) {
-        tex_specular2 = texture(map_specular, TexCoords);
-    }*/
-
     FragColor = finalColor;
-
-    //FragColor = vec4(finalColor, 1.0) ;
-    //FragColor = tex_ambient;
-    //FragColor = tex_vec4(finalColor, 1.0);
-    //FragColor = tex_emission;
-    //FragColor = tex_shininess;
-    //FragColor = tex_normals;
-    //FragColor = tex_specular;
-    //FragColor = ambientMaterial;
 }

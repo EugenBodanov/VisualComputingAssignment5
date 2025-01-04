@@ -11,5 +11,6 @@ CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
 build2/
+build/
 cmake-build-debug
 .idea

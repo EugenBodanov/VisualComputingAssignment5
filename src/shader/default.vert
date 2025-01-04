@@ -7,10 +7,12 @@ layout(location = 2) in vec2 aUV;
 uniform mat4 uModel;
 uniform mat4 uView;
 uniform mat4 uProj;
+uniform vec3 uCameraPos;
 
 out vec3 tNormal;
 out vec3 tFragPos;
 out vec2 TexCoords;
+out vec3 ReflectDir;
 
 void main(void)
 {
@@ -19,4 +21,6 @@ void main(void)
     // tNormal = mat3(transpose(inverse(uModel))) * aNormal;
     TexCoords = aUV;
     tNormal = normalize(mat3(uModel) * aNormal);
+    vec3 I = normalize(tFragPos - uCameraPos);
+    ReflectDir = reflect(I, normalize(tNormal));
 }

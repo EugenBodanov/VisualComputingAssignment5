@@ -26,6 +26,7 @@ in vec3 tNormal;
 in vec3 tFragPos;
 in vec2 TexCoords;
 in vec3 normal;
+in vec3 ReflectDir;
 
 out vec4 FragColor;
 
@@ -38,25 +39,7 @@ uniform sampler2D map_normal;
 uniform sampler2D map_specular;
 uniform bool hasSpecular;
 uniform mat4 uModel;
-
-/*
-vec3 directionalLight(vec3 normal, vec3 lightPos) {
-    vec3 lightDir = normalize(lightPos - tFragPos);
-    vec3 viewDir = normalize(uCameraPos - tFragPos);
-    vec3 halfwayDir = normalize(lightDir + viewDir);
-
-    // Ambient Component: ojects always get some color from surrounding light sources
-    vec3 ambientComponent = uLight.ka * uMaterial.ambient * uLight.globalAmbientLightColor;
-
-    // Diffuse Component: The more a part of an object faces the light source the brihter it gets
-    vec3 diffuseComponent = uLight.kd * uMaterial.diffuse * uLight.lightColor * dot(normal, lightDir);
-
-    // Specular component
-    float specFactor = pow(max(dot(normal, halfwayDir), 0.0), uMaterial.shininess);
-    vec3 specularComponent = uLight.ks * uMaterial.specular * uLight.lightColor * specFactor;
-
-    return ambientComponent + diffuseComponent + specularComponent;
-}*/
+uniform samplerCube uCubeMap;
 
 vec3 blinnPhongIllumination(
     vec3 normal, 
@@ -66,7 +49,8 @@ vec3 blinnPhongIllumination(
     vec3 ambientMaterial, 
     vec3 diffuseMaterial, 
     vec3 specularMaterial,
-    float shininess
+    float shininess,
+    vec3 envColor
 ) {
     vec3 lightDir = normalize(lightPos - fragPos);
 
@@ -81,11 +65,15 @@ vec3 blinnPhongIllumination(
     vec3 diffuseComponent =
         uLight.kd * diffuseMaterial * uLight.lightColor * diff;
 
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+    vec3 reflection = envColor * specularMaterial;
+
     float specAngle = max(dot(normal, halfwayDir), 0.0);
     float specFactor = pow(specAngle, shininess);
-    vec3 specularComponent = uLight.ks * specularMaterial.rgb * uLight.lightColor * specFactor;
+    vec3 specularComponent = uLight.ks * spec * specularMaterial.rgb * uLight.lightColor * specFactor;
 
-    return ambientComponent + diffuseComponent + specularComponent;
+    return ambientComponent + diffuseComponent + specularComponent + reflection;
 }
 
 
@@ -113,6 +101,8 @@ void main(void)
         n_s = -n_s;
     }
 
+    vec3 envColor = texture(uCubeMap, ReflectDir).rgb;
+
     vec3 blinnResult = blinnPhongIllumination(
         n_s,
         tFragPos,
@@ -121,7 +111,8 @@ void main(void)
         ambientMaterial,
         tex_diffuse,
         tex_specular,
-        tex_shininess
+        tex_shininess,
+        envColor
     );
 
     float alpha = texture(map_diffuse, TexCoords).a;

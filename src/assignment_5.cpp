@@ -364,12 +364,6 @@ void renderColor(ShaderProgram& shader, bool renderNormal) {
     shaderUniform(shader, "uProj",  proj);
     shaderUniform(shader, "uView",  view);
     shaderUniform(shader, "uModel",  sScene.plane.transformation);
-    /*
-    if (renderNormal)
-    {
-        shaderUniform(shader, "uViewPos", cameraPosition(sScene.camera));
-        shaderUniform(shader, "isFlag", false);
-    }*/
 
    if (!renderNormal) {
         shaderUniform(shader, "uCameraPos", cameraPosition(sScene.camera));
@@ -383,6 +377,14 @@ void renderColor(ShaderProgram& shader, bool renderNormal) {
         shaderUniform(shader, "uLight.kd", light.kd);
         shaderUniform(shader, "uLight.ks", light.ks);
     }
+
+    glActiveTexture(GL_TEXTURE6);
+    if (sScene.isDay) {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, sScene.isSkyMapMode ? sScene.skyMapDay.texture.id : sScene.starMapDay.texture.id);
+    } else {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, sScene.isSkyMapMode ? sScene.skyMapNight.texture.id : sScene.starMapNight.texture.id);
+    }
+    shaderUniform(shader, "uCubeMap", 6);
 
     /* render plane */
     for(unsigned int i = 0; i < sScene.plane.partModel.size(); i++)
@@ -497,6 +499,14 @@ void renderFlag(ShaderProgram& shader, bool renderNormal) {
     Matrix4D view = cameraView(sScene.camera);
 
     glUseProgram(shader.id);
+
+    glActiveTexture(GL_TEXTURE6);
+    if (sScene.isDay) {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, sScene.isSkyMapMode ? sScene.skyMapDay.texture.id : sScene.starMapDay.texture.id);
+    } else {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, sScene.isSkyMapMode ? sScene.skyMapNight.texture.id : sScene.starMapNight.texture.id);
+    }
+    shaderUniform(shader, "uCubeMap", 6);
 
     shaderUniform(shader, "uProj", proj);
     shaderUniform(shader, "uView", view);
@@ -617,7 +627,7 @@ void sceneDraw()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     /*------------ render skybox -------------*/
-    renderSkybox(sScene.skyboxShader, sScene.skyMapDay, sScene.skyMapNight,sScene.starMapDay,sScene.starMapNight,sScene.camera, sScene.isDay, sScene.isSkyMapMode);
+    renderSkybox(sScene.skyboxShader, sScene.skyMapDay, sScene.skyMapNight, sScene.starMapDay,sScene.starMapNight, sScene.camera, sScene.isDay, sScene.isSkyMapMode);
 
     /*------------ render scene -------------*/
     {
