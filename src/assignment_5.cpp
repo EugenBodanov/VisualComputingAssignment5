@@ -76,8 +76,16 @@ struct
     ShaderProgram shaderNormal;
     ShaderProgram shaderFlagColor;
     ShaderProgram shaderFlagNormal;
+    ShaderProgram skyboxShader;
+
+    /* skybox modes */
+    CubeMap starMapDay;
+    CubeMap starMapNight;
+    CubeMap skyMapDay;
+    CubeMap skyMapNight;
 
     bool isDay;
+    bool isSkyMapMode;
 
     SceneLight dayLight;
     SceneLight nightLight;
@@ -156,8 +164,15 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
     }
 
     /* toggle between day and night time lighting; M for Mode */
-    if (key == GLFW_KEY_M && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_M && action == GLFW_PRESS)
+    {
         sScene.isDay = !sScene.isDay;
+    }
+
+    /* toggle between sky map and star map*/
+    if (key == GLFW_KEY_N && action == GLFW_PRESS)
+    {
+       sScene.isSkyMapMode = !sScene.isSkyMapMode;
     }
 
     /* input for plane control */
@@ -240,8 +255,53 @@ void sceneInit(float width, float height)
     sScene.plane = planeLoad("assets/plane/Cessna.obj", "assets/flag/flag_uibk_textured.obj");
     sScene.planet = planetLoad("assets/planet/earth-cartoon.obj");
 
+    /* Skybox vertices and indices */
+    std::vector<Vector3D> cubeVertices = {
+            {-1.0f, -1.0f, -1.0f}, { 1.0f, -1.0f, -1.0f}, { 1.0f,  1.0f, -1.0f}, {-1.0f,  1.0f, -1.0f},
+            {-1.0f, -1.0f,  1.0f}, { 1.0f, -1.0f,  1.0f}, { 1.0f,  1.0f,  1.0f}, {-1.0f,  1.0f,  1.0f}
+    };
+    std::vector<unsigned int> cubeIndices = {
+            0, 1, 2, 0, 2, 3,  // Front face
+            5, 4, 7, 5, 7, 6,  // Back face
+            4, 0, 3, 4, 3, 7,  // Left face
+            1, 5, 6, 1, 6, 2,  // Right face
+            3, 2, 6, 3, 6, 7,  // Top face
+            4, 5, 1, 4, 1, 0   // Bottom face
+    };
+
+    sScene.starMapDay = cubeMapCreate(
+            cubeVertices,
+            cubeIndices,
+            {
+                    "assets/skybox/hiptyc_2020_4k_gal_with_syferfontein_18d_clear_puresky_4k/n_0.png",
+                    "assets/skybox/hiptyc_2020_4k_gal_with_syferfontein_18d_clear_puresky_4k/n_1.png",
+                    "assets/skybox/hiptyc_2020_4k_gal_with_syferfontein_18d_clear_puresky_4k/n_2.png",
+                    "assets/skybox/hiptyc_2020_4k_gal_with_syferfontein_18d_clear_puresky_4k/n_3.png",
+                    "assets/skybox/hiptyc_2020_4k_gal_with_syferfontein_18d_clear_puresky_4k/n_4.png",
+                    "assets/skybox/hiptyc_2020_4k_gal_with_syferfontein_18d_clear_puresky_4k/n_5.png"
+            }
+    );
+
+    sScene.starMapNight = sScene.starMapDay; // same texture for night
+
+    sScene.skyMapDay = cubeMapCreate(
+            cubeVertices,
+            cubeIndices,
+            {
+                    "assets/skybox/table_mountain_2_puresky_4k_mirrored/n_0.png",
+                    "assets/skybox/table_mountain_2_puresky_4k_mirrored/n_1.png",
+                    "assets/skybox/table_mountain_2_puresky_4k_mirrored/n_2.png",
+                    "assets/skybox/table_mountain_2_puresky_4k_mirrored/n_3.png",
+                    "assets/skybox/table_mountain_2_puresky_4k_mirrored/n_4.png",
+                    "assets/skybox/table_mountain_2_puresky_4k_mirrored/n_5.png"
+            }
+    );
+
+    sScene.skyMapNight = sScene.skyMapDay;
+
     /* Create a light source for day and night */
     sScene.isDay = true;
+    sScene.isSkyMapMode = true;
 
     sScene.dayLight.lightColor = Vector3D(1.0f, 0.9f, 0.8f);
     sScene.dayLight.lightPos = Vector3D(0.0f, 500.0f, 0.0f);
@@ -258,10 +318,11 @@ void sceneInit(float width, float height)
     sScene.nightLight.ks = 0.2f;
 
     /* load shader from file */
-    sScene.shaderColor = shaderLoad("shader/default.vert", "shader/color.frag");
-    sScene.shaderNormal = shaderLoad("shader/default.vert", "shader/normal.frag");
-    sScene.shaderFlagColor = shaderLoad("shader/flag.vert", "shader/flag.frag");
-    sScene.shaderFlagNormal = shaderLoad("shader/flag.vert", "shader/normal.frag");
+    sScene.shaderColor = shaderLoad("src/shader/default.vert", "src/shader/color.frag");
+    sScene.shaderNormal = shaderLoad("src/shader/default.vert", "src/shader/normal.frag");
+    sScene.shaderFlagColor = shaderLoad("src/shader/flag.vert", "src/shader/flag.frag");
+    sScene.shaderFlagNormal = shaderLoad("src/shader/flag.vert", "src/shader/normal.frag");
+    sScene.skyboxShader = shaderLoad("src/shader/skybox.vert", "src/shader/skybox.frag");
 
     sScene.renderMode = eRenderMode::COLOR;
 }
@@ -516,12 +577,47 @@ void renderFlag(ShaderProgram& shader, bool renderNormal) {
     glUseProgram(0);
 }
 
+void renderSkybox(ShaderProgram& skyboxShader, CubeMap& skyMapDay, CubeMap& skyMapNight, CubeMap& starMapDay, CubeMap& starMapNight, Camera& camera, bool isDay, bool isSkyMapMode) {
+    glDepthFunc(GL_LEQUAL); // Skybox in background
+    glUseProgram(skyboxShader.id);
+
+    Matrix4D proj = cameraProjection(camera);
+    Matrix4D view = Matrix4D(Matrix3D(cameraView(camera)));
+
+    // Choose the current map based on the mode and time of day
+    CubeMap& currentMap = isSkyMapMode
+                          ? (isDay ? skyMapDay : skyMapNight)
+                          : (isDay ? starMapDay : starMapNight);
+
+    Vector3D filterColor = isDay ? Vector3D(1.0f, 1.0f, 1.0f) : Vector3D(0.2f, 0.2f, 0.4f);
+
+    // Uniforms for Shader
+    shaderUniform(skyboxShader, "projection", proj);
+    shaderUniform(skyboxShader, "view", view);
+    shaderUniform(skyboxShader, "filterColor", filterColor);
+
+    // Bind Skybox-VAO and Cube-Map-Texture
+    glBindVertexArray(currentMap.mesh.vao);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, currentMap.texture.id);
+
+    // Draw Skybox
+    glDrawElements(GL_TRIANGLES, currentMap.mesh.size_ibo, GL_UNSIGNED_INT, 0);
+
+    // Reset to OpenGL-States
+    glBindVertexArray(0);
+    glUseProgram(0);
+    glDepthFunc(GL_LESS);
+}
+
 /* function to draw all objects in the scene */
 void sceneDraw()
 {
     /* clear framebuffer color */
     glClearColor(135.0 / 255, 206.0 / 255, 235.0 / 255, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    /*------------ render skybox -------------*/
+    renderSkybox(sScene.skyboxShader, sScene.skyMapDay, sScene.skyMapNight,sScene.starMapDay,sScene.starMapNight,sScene.camera, sScene.isDay, sScene.isSkyMapMode);
 
     /*------------ render scene -------------*/
     {

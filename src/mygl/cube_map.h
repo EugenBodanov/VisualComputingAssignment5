@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base.h"
+#include "shader.h"
 
 #include <vector>
 #include <array>
