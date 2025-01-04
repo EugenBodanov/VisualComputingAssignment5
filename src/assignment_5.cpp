@@ -318,11 +318,11 @@ void sceneInit(float width, float height)
     sScene.nightLight.ks = 0.2f;
 
     /* load shader from file */
-    sScene.shaderColor = shaderLoad("src/shader/default.vert", "src/shader/color.frag");
-    sScene.shaderNormal = shaderLoad("src/shader/default.vert", "src/shader/normal.frag");
-    sScene.shaderFlagColor = shaderLoad("src/shader/flag.vert", "src/shader/flag.frag");
-    sScene.shaderFlagNormal = shaderLoad("src/shader/flag.vert", "src/shader/normal.frag");
-    sScene.skyboxShader = shaderLoad("src/shader/skybox.vert", "src/shader/skybox.frag");
+    sScene.shaderColor = shaderLoad("shader/default.vert", "shader/color.frag");
+    sScene.shaderNormal = shaderLoad("shader/default.vert", "shader/normal.frag");
+    sScene.shaderFlagColor = shaderLoad("shader/flag.vert", "shader/flag.frag");
+    sScene.shaderFlagNormal = shaderLoad("shader/flag.vert", "shader/normal.frag");
+    sScene.skyboxShader = shaderLoad("shader/skybox.vert", "shader/skybox.frag");
 
     sScene.renderMode = eRenderMode::COLOR;
 }
