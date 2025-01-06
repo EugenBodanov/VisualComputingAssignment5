@@ -18,6 +18,7 @@ Here we develop code for the UIBK Bachelors seminar Visual Computing (WS2024/25)
 - Toggle Render Mode via \<r>
 - '1' and '2' for selecting basic camera and additional third-person-camera
 - L to turn on/off the plane lights
+- Toggle between sky and star map via \<n> (hardcoded in sceneInit() in line: 304
 
 ### Steering
 
